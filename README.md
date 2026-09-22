@@ -13,7 +13,7 @@ from Spotify.
 The formula tracks the current `main` branch until the first release is tagged:
 
 ```console
-brew tap avichadda/tunedrop https://github.com/avichadda/spotipy
+brew tap avichadda/tunedrop https://github.com/avichadda/tunedrop
 brew install --HEAD avichadda/tunedrop/tunedrop
 ```
 

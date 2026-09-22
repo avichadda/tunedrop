@@ -2,9 +2,9 @@ class Tunedrop < Formula
   include Language::Python::Virtualenv
 
   desc "Archive music metadata links from the command-line"
-  homepage "https://github.com/avichadda/spotipy"
+  homepage "https://github.com/avichadda/tunedrop"
   license "MIT"
-  head "https://github.com/avichadda/spotipy.git", branch: "main"
+  head "https://github.com/avichadda/tunedrop.git", branch: "main"
 
   depends_on "ffmpeg"
   depends_on "python@3.13"
