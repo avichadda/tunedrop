@@ -39,14 +39,18 @@ pytest
 ## Spotify credentials
 
 Create an app in the [Spotify developer dashboard](https://developer.spotify.com/dashboard),
-then export its client credentials:
+call it Tunedrop, enable the Web API, and add `http://127.0.0.1:8888/callback`
+as a redirect URI. Then export its client credentials:
 
 ```console
-export SPOTIFY_CLIENT_ID="your-client-id"
-export SPOTIFY_CLIENT_SECRET="your-client-secret"
+export tunedrop_client_id="your-client-id"
+export tunedrop_client_secret="your-client-secret"
 ```
 
 TuneDrop never stores these values.
+
+Playlist downloads open Spotify in your browser for authorization. Spotify only
+allows access to playlists you own or collaborate on.
 
 ## Usage
 
