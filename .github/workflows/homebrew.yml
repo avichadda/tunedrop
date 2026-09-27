@@ -1,0 +1,48 @@
+name: Homebrew
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "Formula/**"
+      - "pyproject.toml"
+      - ".github/workflows/homebrew.yml"
+  pull_request:
+    paths:
+      - "Formula/**"
+      - "pyproject.toml"
+      - ".github/workflows/homebrew.yml"
+  workflow_dispatch:
+
+jobs:
+  formula:
+    name: Audit & install (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+
+      - name: Tap this repository
+        run: brew tap avichadda/tunedrop "${{ github.workspace }}"
+
+      - name: Check formula style (brew style)
+        run: brew style avichadda/tunedrop/tunedrop
+
+      - name: Audit formula (brew audit --strict)
+        run: brew audit --strict avichadda/tunedrop/tunedrop
+
+      - name: Install from HEAD (brew install --HEAD --build-from-source)
+        run: brew install --HEAD --verbose --build-from-source avichadda/tunedrop/tunedrop
+
+      - name: Run formula test block (brew test)
+        run: brew test avichadda/tunedrop/tunedrop
+
+      - name: Verify the installed binary runs
+        run: brew --prefix tunedrop && "$(brew --prefix tunedrop)/bin/tunedrop" --help
