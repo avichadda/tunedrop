@@ -1,0 +1,89 @@
+name: Bug report
+description: Report a problem with TuneDrop
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the
+        sections below so it can be reproduced and fixed.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug, including what you expected instead.
+      placeholder: Tell us what went wrong.
+    validations:
+      required: true
+
+  - type: textarea
+    id: command
+    attributes:
+      label: Command and output
+      description: The exact `tunedrop` command you ran and its full output, including any traceback.
+      render: shell
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: TuneDrop version
+      description: Output of `tunedrop --version`.
+      placeholder: e.g. 0.1.0 or HEAD-8934aa4
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install-method
+    attributes:
+      label: Install method
+      options:
+        - Homebrew (brew install --HEAD avichadda/tunedrop/tunedrop)
+        - pip / from source (editable install)
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: e.g. macOS 15.5 (Apple Silicon), Ubuntu 24.04
+    validations:
+      required: true
+
+  - type: input
+    id: python-version
+    attributes:
+      label: Python version
+      placeholder: Output of `python3 --version`
+    validations:
+      required: false
+
+  - type: input
+    id: ffmpeg-version
+    attributes:
+      label: FFmpeg version
+      placeholder: Output of `ffmpeg -version`
+    validations:
+      required: false
+
+  - type: input
+    id: url
+    attributes:
+      label: Spotify URL used (if applicable)
+      description: Track, album, or playlist URL you passed to TuneDrop. Remove any private info.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Confirmations
+      options:
+        - label: I searched existing issues and this hasn't been reported before.
+          required: true
+        - label: I only used TuneDrop to download media I'm authorized to access.
+          required: true
