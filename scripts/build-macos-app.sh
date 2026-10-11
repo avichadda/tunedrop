@@ -7,14 +7,17 @@ app="$root/dist/TuneDrop.app"
 contents="$app/Contents"
 iconset="$root/.build/TuneDrop.iconset"
 icon_source="$root/.build/TuneDrop-AppIcon.png"
+sparkle_framework="$root/.build/artifacts/sparkle/Sparkle/Sparkle.xcframework/macos-arm64_x86_64/Sparkle.framework"
 
 cd "$root"
 swift build -c release
 bin_path="$(swift build -c release --show-bin-path)"
 
 rm -rf "$app"
-mkdir -p "$contents/MacOS" "$contents/Resources"
+mkdir -p "$contents/Frameworks" "$contents/MacOS" "$contents/Resources"
 cp "$bin_path/TuneDrop" "$contents/MacOS/TuneDrop"
+ditto "$sparkle_framework" "$contents/Frameworks/Sparkle.framework"
+install_name_tool -add_rpath "@executable_path/../Frameworks" "$contents/MacOS/TuneDrop"
 
 rm -rf "$iconset"
 mkdir -p "$iconset"
@@ -64,8 +67,19 @@ cat > "$contents/Info.plist" <<'PLIST'
   <string>13.0</string>
   <key>NSHighResolutionCapable</key>
   <true/>
+  <key>SUAutomaticallyUpdate</key>
+  <false/>
+  <key>SUEnableAutomaticChecks</key>
+  <true/>
+  <key>SUFeedURL</key>
+  <string>https://raw.githubusercontent.com/avichadda/tunedrop/main/appcast.xml</string>
+  <key>SUPublicEDKey</key>
+  <string>Bn4ihfx99kBFK0KtTMD6dGAuSWerQVSwYPGkAtLMuMQ=</string>
 </dict>
 </plist>
 PLIST
+
+codesign --force --sign - "$app"
+codesign --verify --deep --strict "$app"
 
 printf 'Built %s\n' "$app"
