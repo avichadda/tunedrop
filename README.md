@@ -13,6 +13,13 @@ from Spotify.
 The formula tracks the current `main` branch until the first release is tagged:
 
 ```console
+curl -fsSL https://raw.githubusercontent.com/avichadda/tunedrop/main/install.sh | sh
+```
+
+The installer taps this repository and installs TuneDrop from `main`. To run
+the same steps manually:
+
+```console
 brew tap avichadda/tunedrop https://github.com/avichadda/tunedrop
 brew install --HEAD avichadda/tunedrop/tunedrop
 ```
