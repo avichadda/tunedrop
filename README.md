@@ -62,11 +62,25 @@ Users can also choose **TuneDrop > Check for Updates...**.
 ### Publishing an app update
 
 Sparkle's private EdDSA key is stored in the release maintainer's macOS
-Keychain; only its public key is committed. After creating a GitHub release and
-uploading its matching DMG, sign the exact release asset and update the feed.
-The app bundle in the DMG must pass Apple code-signing verification; local
-builds use ad hoc signing, while public production releases should use a
-Developer ID Application certificate and notarization:
+Keychain; only its public key is committed. Local builds use ad hoc signing,
+while public releases use the protected `release` GitHub environment. Configure
+these environment secrets before publishing:
+
+- `APPLE_CERTIFICATE_P12_BASE64`
+- `APPLE_CERTIFICATE_PASSWORD`
+- `APPLE_SIGNING_IDENTITY`
+- `APPLE_ID`
+- `APPLE_TEAM_ID`
+- `APPLE_APP_SPECIFIC_PASSWORD`
+- `SPARKLE_PRIVATE_KEY`
+
+Pushing a version tag such as `v0.3.0` runs the macOS release workflow. It
+verifies the project version, imports the Developer ID certificate, signs and
+notarizes the app, builds and staples the DMG, publishes checksums, signs the
+Sparkle appcast, and commits the updated feed to `main`.
+
+The appcast can also be generated manually after its matching GitHub release
+asset exists:
 
 ```console
 ./scripts/generate-appcast.sh 0.3.0
@@ -77,6 +91,16 @@ git push
 
 Keep an encrypted backup of the private Sparkle key outside the repository.
 Never commit the exported private key.
+
+## GitHub automation
+
+- **CI** runs Ruff and pytest on Python 3.11 through 3.14, then builds and
+  verifies the native macOS app.
+- **Release macOS** signs, notarizes, packages, and publishes tagged releases.
+- **Windows** builds and tests a PyInstaller executable, uploads it as a
+  workflow artifact, and attaches tagged builds to the matching release.
+- **Homebrew** audits, installs, and tests the formula on macOS and Linux.
+- **Dependabot** checks Python, Swift, and GitHub Actions dependencies weekly.
 
 ## Install for development
 

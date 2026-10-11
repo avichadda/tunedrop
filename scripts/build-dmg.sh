@@ -3,7 +3,7 @@
 set -eu
 
 root="$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)"
-version="0.2.0"
+version="$(sed -n 's/^version = "\(.*\)"/\1/p' "$root/pyproject.toml" | head -n 1)"
 volume_name="TuneDrop Installer"
 app="$root/dist/TuneDrop.app"
 dmg="$root/dist/TuneDrop-$version.dmg"
@@ -11,6 +11,11 @@ staging="$root/.build/dmg-staging"
 read_write_dmg="$root/.build/TuneDrop-$version-rw.dmg"
 background="$staging/.background/background.png"
 device=""
+
+if [ -z "$version" ]; then
+  echo "Error: Could not read the project version from pyproject.toml." >&2
+  exit 1
+fi
 
 cleanup() {
   if [ -n "$device" ]; then

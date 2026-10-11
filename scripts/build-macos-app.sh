@@ -8,6 +8,14 @@ contents="$app/Contents"
 iconset="$root/.build/TuneDrop.iconset"
 icon_source="$root/.build/TuneDrop-AppIcon.png"
 sparkle_framework="$root/.build/artifacts/sparkle/Sparkle/Sparkle.xcframework/macos-arm64_x86_64/Sparkle.framework"
+version="$(sed -n 's/^version = "\(.*\)"/\1/p' "$root/pyproject.toml" | head -n 1)"
+build_number="${BUILD_NUMBER:-1}"
+signing_identity="${CODE_SIGN_IDENTITY:--}"
+
+if [ -z "$version" ]; then
+  echo "Error: Could not read the project version from pyproject.toml." >&2
+  exit 1
+fi
 
 cd "$root"
 swift build -c release
@@ -39,7 +47,7 @@ do
 done
 iconutil -c icns "$iconset" -o "$contents/Resources/AppIcon.icns"
 
-cat > "$contents/Info.plist" <<'PLIST'
+cat > "$contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
   "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -60,9 +68,9 @@ cat > "$contents/Info.plist" <<'PLIST'
   <key>CFBundlePackageType</key>
   <string>APPL</string>
   <key>CFBundleShortVersionString</key>
-  <string>0.2.0</string>
+  <string>$version</string>
   <key>CFBundleVersion</key>
-  <string>1</string>
+  <string>$build_number</string>
   <key>LSMinimumSystemVersion</key>
   <string>13.0</string>
   <key>NSHighResolutionCapable</key>
@@ -79,7 +87,22 @@ cat > "$contents/Info.plist" <<'PLIST'
 </plist>
 PLIST
 
-codesign --force --sign - "$app"
+if [ "$signing_identity" != "-" ]; then
+  sparkle_version="$contents/Frameworks/Sparkle.framework/Versions/B"
+  codesign --force --sign "$signing_identity" --options runtime --timestamp \
+    --preserve-metadata=entitlements "$sparkle_version/XPCServices/Downloader.xpc"
+  codesign --force --sign "$signing_identity" --options runtime --timestamp \
+    --preserve-metadata=entitlements "$sparkle_version/XPCServices/Installer.xpc"
+  codesign --force --sign "$signing_identity" --options runtime --timestamp \
+    "$sparkle_version/Autoupdate"
+  codesign --force --sign "$signing_identity" --options runtime --timestamp \
+    "$sparkle_version/Updater.app"
+  codesign --force --sign "$signing_identity" --options runtime --timestamp \
+    "$contents/Frameworks/Sparkle.framework"
+  codesign --force --sign "$signing_identity" --options runtime --timestamp "$app"
+else
+  codesign --force --sign - "$app"
+fi
 codesign --verify --deep --strict "$app"
 
 printf 'Built %s\n' "$app"
