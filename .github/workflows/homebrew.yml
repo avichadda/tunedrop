@@ -26,13 +26,13 @@ jobs:
         os: [macos-latest, ubuntu-latest]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Check installer syntax
         run: sh -n install.sh
 
       - name: Set up Homebrew
-        uses: Homebrew/actions/setup-homebrew@848c272c7bfe984a197bd4d16383f4c106ec61e6 # v2026.09.21.1
+        uses: Homebrew/actions/setup-homebrew@e99025eb970cfa124b8284a35463d87426917478 # v2026.09.28.1
 
       - name: Tap this repository
         run: brew tap avichadda/tunedrop "${{ github.workspace }}"
