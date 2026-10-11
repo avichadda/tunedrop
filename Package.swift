@@ -8,7 +8,18 @@ let package = Package(
     products: [
         .executable(name: "TuneDrop", targets: ["TuneDropMac"])
     ],
+    dependencies: [
+        .package(
+            url: "https://github.com/sparkle-project/Sparkle",
+            exact: "2.10.0"
+        )
+    ],
     targets: [
-        .executableTarget(name: "TuneDropMac")
+        .executableTarget(
+            name: "TuneDropMac",
+            dependencies: [
+                .product(name: "Sparkle", package: "Sparkle")
+            ]
+        )
     ]
 )

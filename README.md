@@ -55,6 +55,29 @@ adding the required callback URL. The client ID is saved in app preferences and
 the client secret is stored securely in macOS Keychain. Use **Credentials...**
 in the main window to update them later.
 
+The app uses Sparkle to check the signed GitHub release feed when it launches.
+When a newer version is available, Sparkle asks the user before installing it.
+Users can also choose **TuneDrop > Check for Updates...**.
+
+### Publishing an app update
+
+Sparkle's private EdDSA key is stored in the release maintainer's macOS
+Keychain; only its public key is committed. After creating a GitHub release and
+uploading its matching DMG, sign the exact release asset and update the feed.
+The app bundle in the DMG must pass Apple code-signing verification; local
+builds use ad hoc signing, while public production releases should use a
+Developer ID Application certificate and notarization:
+
+```console
+./scripts/generate-appcast.sh 0.3.0
+git add appcast.xml
+git commit -m "Update appcast for TuneDrop 0.3.0"
+git push
+```
+
+Keep an encrypted backup of the private Sparkle key outside the repository.
+Never commit the exported private key.
+
 ## Install for development
 
 TuneDrop requires Python 3.11 or newer and FFmpeg:

@@ -1,6 +1,7 @@
 import AppKit
 import Foundation
 import Security
+import Sparkle
 import SwiftUI
 
 private enum AudioFormat: String, CaseIterable, Identifiable {
@@ -70,6 +71,30 @@ private struct CredentialStoreError: LocalizedError {
             return "Could not save the client secret: \(message)"
         }
         return "Could not save the client secret (Keychain error \(status))."
+    }
+}
+
+@MainActor
+private final class UpdateManager {
+    let updaterController: SPUStandardUpdaterController
+    private var checkedAtLaunch = false
+
+    init() {
+        updaterController = SPUStandardUpdaterController(
+            startingUpdater: true,
+            updaterDelegate: nil,
+            userDriverDelegate: nil
+        )
+    }
+
+    func checkAtLaunch() {
+        guard !checkedAtLaunch else { return }
+        checkedAtLaunch = true
+        updaterController.updater.checkForUpdatesInBackground()
+    }
+
+    func checkForUpdates() {
+        updaterController.updater.checkForUpdates()
     }
 }
 
@@ -576,12 +601,23 @@ private struct ContentView: View {
 @main
 private struct TuneDropApp: App {
     @StateObject private var controller = DownloadController()
+    private let updateManager = UpdateManager()
 
     var body: some Scene {
         WindowGroup {
             RootView(controller: controller)
+                .onAppear {
+                    updateManager.checkAtLaunch()
+                }
         }
         .windowStyle(.titleBar)
         .defaultSize(width: 780, height: 680)
+        .commands {
+            CommandGroup(after: .appInfo) {
+                Button("Check for Updates...") {
+                    updateManager.checkForUpdates()
+                }
+            }
+        }
     }
 }
