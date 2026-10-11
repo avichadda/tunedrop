@@ -31,6 +31,30 @@ the head build with:
 brew upgrade --fetch-HEAD avichadda/tunedrop/tunedrop
 ```
 
+## macOS app
+
+TuneDrop includes a native SwiftUI app for macOS 13 or newer. Install the
+TuneDrop CLI first, then build the app:
+
+```console
+./scripts/build-macos-app.sh
+open dist/TuneDrop.app
+```
+
+To build the distributable DMG with its branded drag-to-Applications window:
+
+```console
+./scripts/build-dmg.sh
+open dist/TuneDrop-0.1.0.dmg
+```
+
+The app provides destination, format, bitrate, overwrite, progress, and
+cancellation controls. It uses the installed TuneDrop CLI as its download
+engine. On first launch, onboarding walks through creating a Spotify app and
+adding the required callback URL. The client ID is saved in app preferences and
+the client secret is stored securely in macOS Keychain. Use **Credentials...**
+in the main window to update them later.
+
 ## Install for development
 
 TuneDrop requires Python 3.11 or newer and FFmpeg:

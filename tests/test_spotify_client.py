@@ -67,7 +67,16 @@ def test_resolve_playlist_uses_user_authorized_items(monkeypatch) -> None:
                         "artists": [{"name": "Rick Astley"}],
                         "album": {"name": "Whenever You Need Somebody"},
                     }
-                }
+                },
+                {
+                    "item": {
+                        "id": None,
+                        "name": "Local Track",
+                        "type": "track",
+                        "artists": [{"name": "Local Artist"}],
+                        "is_local": True,
+                    }
+                },
             ],
             "next": None,
         }

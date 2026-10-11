@@ -199,7 +199,13 @@ class SpotifyClient:
         tracks = []
         for entry in entries:
             item = entry.get("item", entry.get("track"))
-            if isinstance(item, dict) and item.get("type") == "track":
+            if (
+                isinstance(item, dict)
+                and item.get("type") == "track"
+                and item.get("id")
+                and item.get("name")
+                and item.get("artists")
+            ):
                 tracks.append(self._track_from_payload(item))
         return tracks
 

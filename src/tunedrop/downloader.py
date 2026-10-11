@@ -67,16 +67,33 @@ class MediaDownloader:
             ],
             "quiet": True,
             "no_warnings": True,
+            "ignoreerrors": True,
             "overwrites": overwrite,
+            "retries": 3,
+            "fragment_retries": 3,
+            "extractor_retries": 3,
+            "socket_timeout": 30,
         }
-        try:
-            with YoutubeDL(options) as downloader:
-                downloader.download([f"ytsearch5:{track.search_query}"])
-        except DownloadError as error:
-            raise MediaDownloadError(
-                f"No suitable media found for {track.title}: {error}"
-            ) from error
+        base_title = re.sub(r"\s*[\[(].*$", "", track.title).strip()
+        queries = dict.fromkeys(
+            (
+                track.search_query,
+                f"{track.title} official audio",
+                f"{' '.join(track.artists)} {track.title} audio",
+                f"{base_title} official audio",
+                f"{' '.join(track.artists)} {base_title}",
+                base_title,
+            )
+        )
+        last_error: DownloadError | None = None
+        for query in queries:
+            try:
+                with YoutubeDL(options) as downloader:
+                    downloader.download([f"ytsearch5:{query}"])
+            except DownloadError as error:
+                last_error = error
+            if destination.exists():
+                return destination
 
-        if not destination.exists():
-            raise MediaDownloadError(f"Conversion did not produce {destination.name}")
-        return destination
+        detail = f": {last_error}" if last_error else ""
+        raise MediaDownloadError(f"No suitable media found for {track.title}{detail}")
