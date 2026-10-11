@@ -35,11 +35,20 @@ if [ -f "$root/appcast.xml" ]; then
   cp "$root/appcast.xml" "$release_dir/appcast.xml"
 fi
 
-"$generate_appcast" \
-  --download-url-prefix "$repository_url/releases/download/$tag/" \
-  --link "$repository_url/releases/tag/$tag" \
-  --embed-release-notes \
-  "$release_dir"
+if [ -n "${SPARKLE_PRIVATE_KEY:-}" ]; then
+  printf '%s' "$SPARKLE_PRIVATE_KEY" | "$generate_appcast" \
+    --ed-key-file - \
+    --download-url-prefix "$repository_url/releases/download/$tag/" \
+    --link "$repository_url/releases/tag/$tag" \
+    --embed-release-notes \
+    "$release_dir"
+else
+  "$generate_appcast" \
+    --download-url-prefix "$repository_url/releases/download/$tag/" \
+    --link "$repository_url/releases/tag/$tag" \
+    --embed-release-notes \
+    "$release_dir"
+fi
 
 cp "$release_dir/appcast.xml" "$root/appcast.xml"
 printf 'Updated %s for %s\n' "$root/appcast.xml" "$tag"
