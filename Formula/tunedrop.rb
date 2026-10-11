@@ -89,6 +89,6 @@ class Tunedrop < Formula
   end
 
   test do
-    assert_match "0.1.0", shell_output("#{bin}/tunedrop --version")
+    assert_match "0.2.0", shell_output("#{bin}/tunedrop --version")
   end
 end

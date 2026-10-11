@@ -45,7 +45,7 @@ To build the distributable DMG with its branded drag-to-Applications window:
 
 ```console
 ./scripts/build-dmg.sh
-open dist/TuneDrop-0.1.0.dmg
+open dist/TuneDrop-0.2.0.dmg
 ```
 
 The app provides destination, format, bitrate, overwrite, progress, and

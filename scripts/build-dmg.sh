@@ -3,7 +3,7 @@
 set -eu
 
 root="$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)"
-version="0.1.0"
+version="0.2.0"
 volume_name="TuneDrop Installer"
 app="$root/dist/TuneDrop.app"
 dmg="$root/dist/TuneDrop-$version.dmg"
