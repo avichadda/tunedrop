@@ -48,6 +48,36 @@ To build the distributable DMG with its branded drag-to-Applications window:
 open dist/TuneDrop-0.2.0.dmg
 ```
 
+### macOS says the app is damaged
+
+The current public DMG is not Apple-notarized because the project does not yet
+have a paid Developer ID certificate. Gatekeeper may therefore say TuneDrop is
+damaged even when the downloaded DMG is intact.
+
+First verify the `v0.2.0` download:
+
+```console
+shasum -a 256 ~/Downloads/TuneDrop-0.2.0.dmg
+```
+
+The result must be:
+
+```text
+cb6fcf209cb9e9d620240270c11d82d194f1fe8c1ada25877577839ea42eff13
+```
+
+After dragging TuneDrop to Applications, remove quarantine only from this
+verified app and open it:
+
+```console
+xattr -dr com.apple.quarantine /Applications/TuneDrop.app
+open /Applications/TuneDrop.app
+```
+
+Do not use this workaround for a DMG whose checksum does not match. A future
+release signed with an Apple Developer ID and notarized by Apple will not need
+this step.
+
 The app provides destination, format, bitrate, overwrite, progress, and
 cancellation controls. It uses the installed TuneDrop CLI as its download
 engine. On first launch, onboarding walks through creating a Spotify app and
