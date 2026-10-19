@@ -32,7 +32,7 @@ jobs:
         run: sh -n install.sh
 
       - name: Set up Homebrew
-        uses: Homebrew/actions/setup-homebrew@e99025eb970cfa124b8284a35463d87426917478 # v2026.09.28.1
+        uses: Homebrew/actions/setup-homebrew@eb02c69dbabdb66ff183c614f4ce7ab3c077592c # v2026.10.12.1
 
       - name: Tap this repository
         run: brew tap avichadda/tunedrop "${{ github.workspace }}"
