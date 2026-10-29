@@ -34,9 +34,12 @@ jobs:
       - name: Resolve and validate version
         id: version
         shell: bash
+        env:
+          RELEASE_EVENT_NAME: ${{ github.event_name }}
+          RELEASE_INPUT_VERSION: ${{ inputs.version }}
         run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            version="${{ inputs.version }}"
+          if [[ "$RELEASE_EVENT_NAME" == "workflow_dispatch" ]]; then
+            version="$RELEASE_INPUT_VERSION"
             tag="v$version"
           else
             tag="$GITHUB_REF_NAME"
@@ -115,8 +118,9 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
         run: |
-          dmg="dist/TuneDrop-${{ steps.version.outputs.version }}.dmg"
+          dmg="dist/TuneDrop-$RELEASE_VERSION.dmg"
           xcrun notarytool submit "$dmg" \
             --apple-id "$APPLE_ID" \
             --team-id "$APPLE_TEAM_ID" \
@@ -128,17 +132,21 @@ jobs:
           spctl --assess --type open --context context:primary-signature --verbose=2 "$dmg"
 
       - name: Create checksum
+        env:
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
         run: |
           cd dist
-          shasum -a 256 "TuneDrop-${{ steps.version.outputs.version }}.dmg" \
-            > "TuneDrop-${{ steps.version.outputs.version }}.dmg.sha256"
+          shasum -a 256 "TuneDrop-$RELEASE_VERSION.dmg" \
+            > "TuneDrop-$RELEASE_VERSION.dmg.sha256"
 
       - name: Create release and upload DMG
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
         run: |
-          tag="${{ steps.version.outputs.tag }}"
-          version="${{ steps.version.outputs.version }}"
+          tag="$RELEASE_TAG"
+          version="$RELEASE_VERSION"
           if ! gh release view "$tag" >/dev/null 2>&1; then
             gh release create "$tag" \
               --target "$GITHUB_SHA" \
@@ -154,11 +162,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
-        run: ./scripts/generate-appcast.sh "${{ steps.version.outputs.version }}"
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        run: ./scripts/generate-appcast.sh "$RELEASE_VERSION"
 
       - name: Publish appcast to main
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
         run: |
           cp appcast.xml "$RUNNER_TEMP/appcast.xml"
           git fetch origin main
@@ -170,5 +180,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add appcast.xml
-          git commit -m "Update appcast for TuneDrop ${{ steps.version.outputs.version }}"
+          git commit -m "Update appcast for TuneDrop $RELEASE_VERSION"
           git push origin main
